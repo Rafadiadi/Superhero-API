@@ -39,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
       if (user != null) {
         setState(() {
           loggedInUser = user;
-          myDisplayName = user.displayName ?? 'User';
+          myDisplayName = user?.displayName ?? 'User';
         });
       }
     } catch (e) {
