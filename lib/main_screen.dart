@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'createmoods_screen.dart';
+import 'userdisplayname_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -111,11 +112,16 @@ class _MainScreenState extends State<MainScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const IconButton(
+                        IconButton(
                           iconSize: 35.0,
                           tooltip: 'Set Profile Name',
-                          icon: Icon(Icons.settings),
-                          onPressed: null,
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.pushNamed(context, UserDisplayName.id)
+                                .whenComplete(() => setState(() {
+                                      getCurrentUser();
+                                    }));
+                          },
                         ),
                         IconButton(
                           iconSize: 35.0,

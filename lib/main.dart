@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'main_screen.dart';
 import 'createmoods_screen.dart';
+import 'userdisplayname_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
       // Named routes untuk navigasi antar halaman
       routes: {
         CreateMoodsScreen.id: (context) => const CreateMoodsScreen(),
+        UserDisplayName.id: (context) => const UserDisplayName(),
       },
     );
   }
