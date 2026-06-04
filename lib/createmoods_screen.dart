@@ -52,8 +52,19 @@ class _CreateMoodsScreenState extends State<CreateMoodsScreen> {
                   if (heroNameToSearch == null || heroNameToSearch!.isEmpty) {
                     return const Center(child: Text('Search your hero first'));
                   }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
                   
                   if (snapshot.hasData) {
+                    if (snapshot.data?.response == 'error') {
+                      return const Center(child: Text('Hero tidak ditemukan'));
+                    }
                     return ListView.builder(
                       itemCount: snapshot.data?.results?.length ?? 0,
                       itemBuilder: ((context, index) {
