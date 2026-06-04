@@ -145,16 +145,16 @@ class _CreateMoodsScreenState extends State<CreateMoodsScreen> {
             icon: const Icon(Icons.send),
             onPressed: () async {
               var loggedInUser = FirebaseAuth.instance.currentUser;
-              if (loggedInUser != null && loggedInUser.email != null) {
+              if (loggedInUser != null) {
                 await firestoreInstance
                     .collection('moods')
-                    .doc(loggedInUser.email)
+                    .doc(loggedInUser.uid)
                     .set({
                   'namahero': '$namaHero',
                   'urlhero': '$imgHero',
                   'moodstext': '$moodsText'
                 }).then((value) {
-                  print('${loggedInUser.displayName} berhasil menambahkan moods');
+                  print('${loggedInUser.displayName ?? loggedInUser.uid} berhasil menambahkan moods');
                 }).catchError((error) {
                   print('Gagal menambahkan moods ke database');
                 });

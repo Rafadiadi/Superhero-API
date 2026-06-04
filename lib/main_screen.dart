@@ -29,12 +29,18 @@ class _MainScreenState extends State<MainScreen> {
     streamFirestoreData();
   }
 
-  void getCurrentUser() {
+  void getCurrentUser() async {
     try {
-      final user = _auth.currentUser;
+      var user = _auth.currentUser;
+      if (user == null) {
+        final userCredential = await _auth.signInAnonymously();
+        user = userCredential.user;
+      }
       if (user != null) {
-        loggedInUser = user;
-        myDisplayName = user.displayName ?? 'User';
+        setState(() {
+          loggedInUser = user;
+          myDisplayName = user.displayName ?? 'User';
+        });
       }
     } catch (e) {
       print(e);
@@ -42,9 +48,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void streamFirestoreData() {
-    if (loggedInUser != null && loggedInUser!.email != null) {
+    if (loggedInUser != null) {
       _firebaseFirestore
-          .doc(loggedInUser!.email)
+          .doc(loggedInUser!.uid)
           .snapshots()
           .listen((event) {
         if (event.data() != null) {
@@ -59,8 +65,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void deleteMoods() async {
-    if (loggedInUser != null && loggedInUser!.email != null) {
-      await _firebaseFirestore.doc(loggedInUser!.email).delete();
+    if (loggedInUser != null) {
+      await _firebaseFirestore.doc(loggedInUser!.uid).delete();
     }
   }
 
