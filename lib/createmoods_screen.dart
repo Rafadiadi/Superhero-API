@@ -17,8 +17,7 @@ class _CreateMoodsScreenState extends State<CreateMoodsScreen> {
   void getData() async {
     http.Response response = await http.get(
       Uri.parse(
-        // Ganti access token (10224255825447393) dengan ID Pengguna Facebook kamu
-        'https://www.superheroapi.com/api.php/10224255825447393/search/batman',
+        'https://www.superheroapi.com/api.php/b5b8bf84f8a5b69028cefed24db018b6/search/batman',
       ),
     );
     // Tampilkan isi response dari API di console (Debug Console)
