@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'main_screen.dart';
 import 'createmoods_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Catatan: Pastikan google-services.json sudah ada di folder android/app/
+  // sebelum menjalankan aplikasi, jika tidak aplikasi akan crash.
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print("Firebase initialization error: $e");
+  }
   runApp(const MyApp());
 }
 

@@ -1,6 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/heroapi_connection.dart';
 import 'model/hero.dart';
 
 class CreateMoodsScreen extends StatefulWidget {
@@ -13,85 +14,111 @@ class CreateMoodsScreen extends StatefulWidget {
 }
 
 class _CreateMoodsScreenState extends State<CreateMoodsScreen> {
-  // Controller untuk TextField moods
-  final TextEditingController _moodsController = TextEditingController();
-
-  // getData() sekarang mengembalikan Future<HeroData>
-  // agar bisa digunakan oleh FutureBuilder
-  Future<HeroData> getData() async {
-    http.Response response = await http.get(
-      Uri.parse(
-        'https://www.superheroapi.com/api.php/b5b8bf84f8a5b69028cefed24db018b6/search/batman',
-      ),
-    );
-
-    // Periksa status code dari response API
-    if (response.statusCode == 200) {
-      // Jika berhasil (kode 200), decode JSON dan return objek HeroData
-      return HeroData.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load HeroData');
-    }
-  }
+  String? heroNameToSearch;
+  Future<HeroData>? getHeroData;
+  String? namaHero;
+  String? imgHero;
+  int selectedIndex = -1;
+  String? moodsText;
+  
+  final firestoreInstance = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // FutureBuilder: widget yang dapat menggenerate widget lainnya
-      // berdasarkan data Future yang diambil dari API
-      body: FutureBuilder(
-        future: getData(),
-        builder: (context, AsyncSnapshot<HeroData> snapshot) {
-          // Cek apakah snapshot sudah berisi data
-          if (snapshot.hasData) {
-            // Jika data sudah ada, tampilkan ListView
-            return ListView.builder(
-              // itemCount: banyaknya item sesuai panjang data results API
-              itemCount: snapshot.data?.results?.length,
-              itemBuilder: ((context, index) {
-                // heroesData: menyimpan data hero sesuai index
-                var heroesData = snapshot.data!.results![index];
-
-                return Column(
-                  children: [
-                    InkWell(
-                      onTap: null, // akan diisi navigasi di bagian berikutnya
-                      child: Card(
-                        child: Container(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 20.0),
-                          height: 300.0,
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              // Tampilkan gambar hero dari URL (field img)
-                              Image.network(heroesData.img ?? ''),
-                              // Tampilkan nama hero
-                              Text(
-                                heroesData.name ?? '',
-                                style: const TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w700,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Card(
+              child: TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Search your hero first',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(15),
+                ),
+                onChanged: (value) {
+                  heroNameToSearch = value;
+                  setState(() {
+                    getHeroData = HeroApiConnection(heroName: heroNameToSearch)
+                        .getData();
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<HeroData>(
+                future: getHeroData,
+                builder: (context, snapshot) {
+                  if (heroNameToSearch == null || heroNameToSearch!.isEmpty) {
+                    return const Center(child: Text('Search your hero first'));
+                  }
+                  
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data?.results?.length ?? 0,
+                      itemBuilder: ((context, index) {
+                        var heroesData = snapshot.data!.results![index];
+                        return Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                setState(() {
+                                  selectedIndex = index;
+                                  namaHero = heroesData.name;
+                                  imgHero = heroesData.img;
+                                });
+                              },
+                              child: Card(
+                                shape: (selectedIndex == index)
+                                    ? const RoundedRectangleBorder(
+                                        side: BorderSide(
+                                            color: Colors.blueAccent))
+                                    : null,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 20.0),
+                                  height: 300.0,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      if (heroesData.img != null)
+                                        Image.network(
+                                          heroesData.img!,
+                                          width: 150,
+                                          errorBuilder: (context, error,
+                                                  stackTrace) =>
+                                              const Icon(Icons.broken_image),
+                                        ),
+                                      Expanded(
+                                        child: Text(
+                                          heroesData.name ?? '',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            );
-          } else {
-            // Jika data belum ada, tampilkan loading indicator
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+                            ),
+                          ],
+                        );
+                      }),
+                    );
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-
-      // BottomSheet untuk input moods
       bottomSheet: Card(
         child: ListTile(
           leading: const Text(
@@ -99,16 +126,33 @@ class _CreateMoodsScreenState extends State<CreateMoodsScreen> {
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           title: TextField(
-            controller: _moodsController,
-            decoration: const InputDecoration(
-              hintText: 'Tulis mood kamu...',
-              border: InputBorder.none,
-            ),
+            onChanged: (value) {
+              moodsText = value;
+            },
           ),
           trailing: IconButton(
             icon: const Icon(Icons.send),
-            onPressed: () {
-              // Kembali ke halaman sebelumnya (main_screen)
+            onPressed: () async {
+              var loggedInUser = FirebaseAuth.instance.currentUser;
+              if (loggedInUser != null && loggedInUser.email != null) {
+                await firestoreInstance
+                    .collection('moods')
+                    .doc(loggedInUser.email)
+                    .set({
+                  'namahero': '$namaHero',
+                  'urlhero': '$imgHero',
+                  'moodstext': '$moodsText'
+                }).then((value) {
+                  print('${loggedInUser.displayName} berhasil menambahkan moods');
+                }).catchError((error) {
+                  print('Gagal menambahkan moods ke database');
+                });
+              } else {
+                // Sesuai kodingan tutorial jika belum login, docID akan error, 
+                // tapi kita tambahkan check null safety karena Flutter 3+
+                print('Login diperlukan untuk menyimpan ke Firestore');
+              }
+              if (!mounted) return;
               Navigator.pop(context);
             },
           ),
