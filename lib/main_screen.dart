@@ -15,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
   User? loggedInUser;
   String myDisplayName = 'User';
   String imgProfile =
-      'https://www.its.ac.id/aktuaria/wp-content/uploads/sites/100/2018/03/user.png';
+                            'https://www.pngkey.com/png/detail/230-2301779_best-classified-apps-default-user-profile.png';
   String namaHero = 'superheroname';
   String moodsHero = '.....';
 
@@ -99,7 +99,7 @@ class _MainScreenState extends State<MainScreen> {
                       deleteMoods();
                       setState(() {
                         imgProfile =
-                            'https://www.its.ac.id/aktuaria/wp-content/uploads/sites/100/2018/03/user.png';
+                            'https://www.pngkey.com/png/detail/230-2301779_best-classified-apps-default-user-profile.png';
                         namaHero = 'superheroname';
                         moodsHero = '.....';
                       });
