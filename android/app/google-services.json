@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "506124498849",
+    "project_id": "superhero-moods-8f536",
+    "storage_bucket": "superhero-moods-8f536.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506124498849:android:c910c04f427b8fb60d7de0",
+        "android_client_info": {
+          "package_name": "com.telkomuniversity.superheromood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0GWSJoR0BldKzCDvBeX2I1RzuykicVms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
