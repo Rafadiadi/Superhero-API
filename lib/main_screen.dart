@@ -37,6 +37,8 @@ class _MainScreenState extends State<MainScreen> {
         user = userCredential.user;
       }
       if (user != null) {
+        await user.reload();
+        user = _auth.currentUser;
         setState(() {
           loggedInUser = user;
           myDisplayName = user?.displayName ?? 'User';

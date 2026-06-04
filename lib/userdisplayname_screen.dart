@@ -69,21 +69,21 @@ class _UserDisplayNameState extends State<UserDisplayName> {
                       },
                       child: const Text('Back'),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          if (_activeUser != null && _setDisplayName != null) {
-                            await _activeUser!.updateProfile(
-                                displayName: _setDisplayName);
+                      ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user != null && _setDisplayName != null) {
+                              await user.updateDisplayName(_setDisplayName);
+                            }
                             if (!mounted) return;
                             Navigator.pop(context);
+                          } catch (e) {
+                            print(e);
                           }
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      child: const Text('Submit'),
-                    ),
+                        },
+                        child: const Text('Submit'),
+                      ),
                   ],
                 ),
               ],
