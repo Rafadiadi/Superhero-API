@@ -78,6 +78,12 @@ class Result {
         img: json["image"] == null ? null : json["image"]["url"],
       );
 
+  factory Result.fromJsonAkabab(Map<String, dynamic> json) => Result(
+        id: json["id"]?.toString(),
+        name: json["name"],
+        img: json["images"] == null ? null : json["images"]["lg"],
+      );
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
